@@ -1,6 +1,9 @@
 CREATE DATABASE Ventas;
 
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
 -- Esquema de Recursos Humanos --
+
 -- Tabla de datos de contacto
 CREATE TABLE Contactos (
     ContactoID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
@@ -54,7 +57,10 @@ CREATE TABLE ClientesEmpresa (
     CONSTRAINT FK_ClientesEmpresa_Empresas FOREIGN KEY (Ruc) REFERENCES Empresas(Ruc) ON UPDATE CASCADE
 );
 
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
 -- Esquema de Inventarios --
+
 -- Categorias
 CREATE TABLE Categorias (
     CodigoCategoria INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
@@ -88,7 +94,10 @@ CREATE TABLE Productos (
     CONSTRAINT FK_Productos_Proveedor FOREIGN KEY (Ruc) REFERENCES Proveedores(Ruc) ON UPDATE CASCADE
 );
 
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
 -- Esquema de Ventas --
+
 -- Ventas
 CREATE TABLE Ventas (
     CodigoVenta INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
