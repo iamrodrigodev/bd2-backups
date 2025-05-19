@@ -1,3 +1,4 @@
+CREATE DATABASE Ventas;
 
 -- Esquema de Recursos Humanos --
 -- Tabla de datos de contacto
