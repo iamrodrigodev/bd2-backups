@@ -127,11 +127,12 @@ GO
 -- 7. Ventas
 -- ===============================
 CREATE TABLE Ventas (
-    CodigoVenta INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    CodigoVenta INT NOT NULL IDENTITY(1,1),
     Dni CHAR(8) NULL,
     Ruc CHAR(11) NULL,
     CodigoEmpleado INT NOT NULL,
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT PK_Ventas PRIMARY KEY (CodigoVenta, FechaRegistro),
     CONSTRAINT CHK_SoloUnCliente CHECK (
         (Dni IS NOT NULL AND Ruc IS NULL) OR 
         (Dni IS NULL AND Ruc IS NOT NULL)
@@ -140,9 +141,6 @@ CREATE TABLE Ventas (
     CONSTRAINT FK_Ventas_ClientesEmpresa FOREIGN KEY (Ruc) REFERENCES ClientesEmpresa(Ruc),
     CONSTRAINT FK_Ventas_Empleados FOREIGN KEY (CodigoEmpleado) REFERENCES Empleados(CodigoEmpleado)
 ) ON schParticionVentasPorAno(FechaRegistro);
-GO
-
-CREATE NONCLUSTERED INDEX IX_Ventas_FechaRegistro ON Ventas(FechaRegistro) ON schParticionVentasPorAno(FechaRegistro);
 GO
 
 -- ===============================
