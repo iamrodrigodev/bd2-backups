@@ -131,7 +131,7 @@ CREATE TABLE Ventas (
     Dni CHAR(8) NULL,
     Ruc CHAR(11) NULL,
     CodigoEmpleado INT NOT NULL,
-    fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT CHK_SoloUnCliente CHECK (
         (Dni IS NOT NULL AND Ruc IS NULL) OR 
         (Dni IS NULL AND Ruc IS NOT NULL)
@@ -139,10 +139,10 @@ CREATE TABLE Ventas (
     CONSTRAINT FK_Ventas_ClientesPersona FOREIGN KEY (Dni) REFERENCES Clientes(Dni) ON UPDATE CASCADE,
     CONSTRAINT FK_Ventas_ClientesEmpresa FOREIGN KEY (Ruc) REFERENCES ClientesEmpresa(Ruc),
     CONSTRAINT FK_Ventas_Empleados FOREIGN KEY (CodigoEmpleado) REFERENCES Empleados(CodigoEmpleado)
-) ON schParticionVentasPorAno(fecha_registro);
+) ON schParticionVentasPorAno(FechaRegistro);
 GO
 
-CREATE CLUSTERED INDEX IX_Ventas_FechaRegistro ON Ventas(fecha_registro) ON schParticionVentasPorAno(fecha_registro);
+CREATE NONCLUSTERED INDEX IX_Ventas_FechaRegistro ON Ventas(FechaRegistro) ON schParticionVentasPorAno(FechaRegistro);
 GO
 
 -- ===============================
