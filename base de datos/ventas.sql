@@ -101,6 +101,12 @@ CREATE TABLE Ventas (
     CONSTRAINT FK_Ventas_Empleados FOREIGN KEY (CodigoEmpleado) REFERENCES Empleados(CodigoEmpleado) ON UPDATE CASCADE
 );
 
-
+-- Detalle de ventas
 CREATE TABLE DetalleVentas (
-    
+    CodigoVenta INT NOT NULL,
+    CodigoProducto INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PRIMARY KEY (CodigoVenta, CodigoProducto),
+    CONSTRAINT FK_DetalleVentas_Ventas FOREIGN KEY (CodigoVenta) REFERENCES Ventas(CodigoVenta) ON UPDATE CASCADE,
+    CONSTRAINT FK_DetalleVentas_Productos FOREIGN KEY (CodigoProducto) REFERENCES Productos(CodigoProducto) ON UPDATE CASCADE
+);
