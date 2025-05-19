@@ -148,10 +148,11 @@ GO
 -- ===============================
 CREATE TABLE DetalleVentas (
     CodigoVenta INT NOT NULL,
+    FechaRegistro DATETIME NOT NULL,
     CodigoProducto INT NOT NULL,
     Cantidad INT NOT NULL,
     PRIMARY KEY (CodigoVenta, CodigoProducto),
-    CONSTRAINT FK_DetalleVentas_Ventas FOREIGN KEY (CodigoVenta) REFERENCES Ventas(CodigoVenta) ON UPDATE CASCADE,
+    CONSTRAINT FK_DetalleVentas_Ventas FOREIGN KEY (CodigoVenta, FechaRegistro) REFERENCES Ventas(CodigoVenta, FechaRegistro) ON UPDATE CASCADE,
     CONSTRAINT FK_DetalleVentas_Productos FOREIGN KEY (CodigoProducto) REFERENCES Productos(CodigoProducto)
 );
 GO
