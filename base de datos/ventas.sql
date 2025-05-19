@@ -5,7 +5,8 @@ CREATE TABLE Contactos (
     ContactoID INT PRIMARY KEY IDENTITY(1,1),
     Direccion TEXT,
     Telefono CHAR(9),
-    Email TEXT
+    Email TEXT,
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE()
 );
 
 -- Personas
@@ -15,29 +16,74 @@ CREATE TABLE Personas (
     ApellidoPaterno TEXT NOT NULL,
     ApellidoMaterno TEXT NOT NULL,
     ContactoID INT,
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Personas_Contacto FOREIGN KEY (ContactoID) REFERENCES Contactos(ContactoID) ON UPDATE CASCADE
+);
+
+-- Empresas
+CREATE TABLE Empresas (
+    Ruc CHAR(11) PRIMARY KEY,
+    RazonSocial TEXT NOT NULL,
+    ContactoID INT,
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Empresas_Contacto FOREIGN KEY (ContactoID) REFERENCES Contactos(ContactoID) ON UPDATE CASCADE
 );
 
 -- Empleados
 CREATE TABLE Empleados (
     CodigoEmpleado INT PRIMARY KEY IDENTITY(1,1),
     Dni CHAR(8) NOT NULL,
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Empleados_Personas FOREIGN KEY (Dni) REFERENCES Personas(Dni) ON UPDATE CASCADE
 );
 
 -- Clientes naturales
 CREATE TABLE Clientes (
     Dni CHAR(8) PRIMARY KEY,
-    TipoCliente TEXT NOT NULL DEFAULT 'regular',
+    TipoCliente TEXT DEFAULT 'regular',
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Clientes_Personas FOREIGN KEY (Dni) REFERENCES Personas(Dni) ON UPDATE CASCADE
 );
 
 -- Clientes que son empresa
 CREATE TABLE ClientesEmpresa (
-    RUC CHAR(11) PRIMARY KEY,
-    RazonSocial TEXT NOT NULL,
-    ContactoID INT,
-    CONSTRAINT FK_ClientesEmpresa_Contacto FOREIGN KEY (ContactoID) REFERENCES Contactos(ContactoID) ON UPDATE CASCADE
+    Ruc CHAR(11) PRIMARY KEY,
+    Rubro TEXT DEFAULT 'general',
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_ClientesEmpresa_Empresas FOREIGN KEY (Ruc) REFERENCES Empresas(Ruc) ON UPDATE CASCADE
 );
 
 -- Esquema de Inventarios --
+-- Categorias
+CREATE TABLE Categorias (
+    CodigoCategoria INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre TEXT NOT NULL,
+    Descripcion TEXT,
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- Proveedores
+CREATE TABLE Proveedores (
+    Ruc CHAR(11) PRIMARY KEY,
+    Activo BIT DEFAULT 1,
+    Calificacion INT CHECK (Calificacion BETWEEN 1 AND 5),
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Proveedores_Empresas FOREIGN KEY (Ruc) REFERENCES Empresas(Ruc) ON UPDATE CASCADE
+);
+
+-- Productos
+CREATE TABLE Productos (
+    CodigoProducto INT IDENTITY(1,1),
+    CodigoCategoria INT,
+    Ruc CHAR(11),
+    Nombre TEXT UNIQUE NOT NULL,
+    Descripcion TEXT,
+    Precio_Compra FLOAT NOT NULL,
+    Precio_Venta FLOAT NOT NULL,
+    Stock INT NOT NULL,
+    Estado VARCHAR(10) CHECK (Estado IN ('disponible', 'agotado')) NOT NULL DEFAULT 'disponible',
+    FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT PK_Productos PRIMARY KEY (CodigoProducto),
+    CONSTRAINT FK_Productos_Categoria FOREIGN KEY (CodigoCategoria) REFERENCES Categorias(CodigoCategoria) ON UPDATE CASCADE,
+    CONSTRAINT FK_Productos_Proveedor FOREIGN KEY (Ruc) REFERENCES Proveedores(Ruc) ON UPDATE CASCADE
+);
