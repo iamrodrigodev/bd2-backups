@@ -1,14 +1,30 @@
+-- Crear la base de datos
 CREATE DATABASE VentasBD2;
 GO
 
 USE VentasBD2;
 GO
 
------------------------------------------------------------------------------------------------------------
--- Esquema de Recursos Humanos --
------------------------------------------------------------------------------------------------------------
+-- ===============================
+-- 1. Particionado por Fecha
+-- ===============================
+CREATE PARTITION FUNCTION fnParticionVentasPorAno(datetime)
+AS RANGE RIGHT FOR VALUES (
+    '2025-05-01',
+    '2026-01-01',
+    '2027-01-01',
+    '2028-01-01'
+);
+GO
 
--- Tabla de datos de contacto
+CREATE PARTITION SCHEME schParticionVentasPorAno
+AS PARTITION fnParticionVentasPorAno
+TO ([PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY]);
+GO
+
+-- ===============================
+-- 2. Tabla de Contactos (Compartida)
+-- ===============================
 CREATE TABLE Contactos (
     ContactoID INT NOT NULL PRIMARY KEY IDENTITY(1,1),
     Direccion TEXT,
@@ -18,7 +34,9 @@ CREATE TABLE Contactos (
 );
 GO
 
--- Personas
+-- ===============================
+-- 3. Personas y Empresas
+-- ===============================
 CREATE TABLE Personas (
     Dni CHAR(8) NOT NULL PRIMARY KEY,
     Nombre TEXT NOT NULL,
@@ -30,7 +48,6 @@ CREATE TABLE Personas (
 );
 GO
 
--- Empresas
 CREATE TABLE Empresas (
     Ruc CHAR(11) NOT NULL PRIMARY KEY,
     RazonSocial TEXT NOT NULL,
@@ -40,7 +57,9 @@ CREATE TABLE Empresas (
 );
 GO
 
--- Empleados
+-- ===============================
+-- 4. Recursos Humanos
+-- ===============================
 CREATE TABLE Empleados (
     CodigoEmpleado INT NOT NULL PRIMARY KEY IDENTITY(1,1),
     Dni CHAR(8) NOT NULL,
@@ -49,7 +68,9 @@ CREATE TABLE Empleados (
 );
 GO
 
--- Clientes naturales
+-- ===============================
+-- 5. Clientes
+-- ===============================
 CREATE TABLE Clientes (
     Dni CHAR(8) NOT NULL PRIMARY KEY,
     TipoCliente TEXT DEFAULT 'regular',
@@ -58,7 +79,6 @@ CREATE TABLE Clientes (
 );
 GO
 
--- Clientes que son empresa
 CREATE TABLE ClientesEmpresa (
     Ruc CHAR(11) NOT NULL PRIMARY KEY,
     Rubro TEXT DEFAULT 'general',
@@ -67,11 +87,9 @@ CREATE TABLE ClientesEmpresa (
 );
 GO
 
------------------------------------------------------------------------------------------------------------
--- Esquema de Inventarios --
------------------------------------------------------------------------------------------------------------
-
--- Categorias
+-- ===============================
+-- 6. Inventarios
+-- ===============================
 CREATE TABLE Categorias (
     CodigoCategoria INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     Nombre NVARCHAR(100) UNIQUE NOT NULL,
@@ -80,7 +98,6 @@ CREATE TABLE Categorias (
 );
 GO
 
--- Proveedores
 CREATE TABLE Proveedores (
     Ruc CHAR(11) NOT NULL PRIMARY KEY,
     Activo BIT DEFAULT 1,
@@ -90,7 +107,6 @@ CREATE TABLE Proveedores (
 );
 GO
 
--- Productos
 CREATE TABLE Productos (
     CodigoProducto INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     CodigoCategoria INT,
@@ -107,25 +123,31 @@ CREATE TABLE Productos (
 );
 GO
 
------------------------------------------------------------------------------------------------------------
--- Esquema de Ventas --
------------------------------------------------------------------------------------------------------------
-
--- Ventas
+-- ===============================
+-- 7. Ventas
+-- ===============================
 CREATE TABLE Ventas (
     CodigoVenta INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     Dni CHAR(8) NULL,
     Ruc CHAR(11) NULL,
     CodigoEmpleado INT NOT NULL,
     fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT CHK_SoloUnCliente CHECK ((Dni IS NOT NULL AND Ruc IS NULL) OR (Dni IS NULL AND Ruc IS NOT NULL)),
+    CONSTRAINT CHK_SoloUnCliente CHECK (
+        (Dni IS NOT NULL AND Ruc IS NULL) OR 
+        (Dni IS NULL AND Ruc IS NOT NULL)
+    ),
     CONSTRAINT FK_Ventas_ClientesPersona FOREIGN KEY (Dni) REFERENCES Clientes(Dni) ON UPDATE CASCADE,
     CONSTRAINT FK_Ventas_ClientesEmpresa FOREIGN KEY (Ruc) REFERENCES ClientesEmpresa(Ruc),
     CONSTRAINT FK_Ventas_Empleados FOREIGN KEY (CodigoEmpleado) REFERENCES Empleados(CodigoEmpleado)
-);
+) ON schParticionVentasPorAno(fecha_registro);
 GO
 
--- Detalle de ventas
+CREATE CLUSTERED INDEX IX_Ventas_FechaRegistro ON Ventas(fecha_registro) ON schParticionVentasPorAno(fecha_registro);
+GO
+
+-- ===============================
+-- 8. Detalle de Ventas
+-- ===============================
 CREATE TABLE DetalleVentas (
     CodigoVenta INT NOT NULL,
     CodigoProducto INT NOT NULL,
