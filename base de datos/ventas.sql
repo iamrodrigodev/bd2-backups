@@ -1,8 +1,12 @@
 CREATE DATABASE VentasBD2;
+GO
+
+USE VentasBD2;
+GO
 
 -----------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------
 -- Esquema de Recursos Humanos --
+-----------------------------------------------------------------------------------------------------------
 
 -- Tabla de datos de contacto
 CREATE TABLE Contactos (
@@ -12,6 +16,7 @@ CREATE TABLE Contactos (
     Email TEXT,
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE()
 );
+GO
 
 -- Personas
 CREATE TABLE Personas (
@@ -23,6 +28,7 @@ CREATE TABLE Personas (
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Personas_Contacto FOREIGN KEY (ContactoID) REFERENCES Contactos(ContactoID) ON UPDATE CASCADE
 );
+GO
 
 -- Empresas
 CREATE TABLE Empresas (
@@ -32,6 +38,7 @@ CREATE TABLE Empresas (
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Empresas_Contacto FOREIGN KEY (ContactoID) REFERENCES Contactos(ContactoID) ON UPDATE CASCADE
 );
+GO
 
 -- Empleados
 CREATE TABLE Empleados (
@@ -40,6 +47,7 @@ CREATE TABLE Empleados (
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Empleados_Personas FOREIGN KEY (Dni) REFERENCES Personas(Dni) ON UPDATE CASCADE
 );
+GO
 
 -- Clientes naturales
 CREATE TABLE Clientes (
@@ -48,6 +56,7 @@ CREATE TABLE Clientes (
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Clientes_Personas FOREIGN KEY (Dni) REFERENCES Personas(Dni) ON UPDATE CASCADE
 );
+GO
 
 -- Clientes que son empresa
 CREATE TABLE ClientesEmpresa (
@@ -56,10 +65,11 @@ CREATE TABLE ClientesEmpresa (
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_ClientesEmpresa_Empresas FOREIGN KEY (Ruc) REFERENCES Empresas(Ruc) ON UPDATE CASCADE
 );
+GO
 
 -----------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------
 -- Esquema de Inventarios --
+-----------------------------------------------------------------------------------------------------------
 
 -- Categorias
 CREATE TABLE Categorias (
@@ -68,6 +78,7 @@ CREATE TABLE Categorias (
     Descripcion TEXT,
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE()
 );
+GO
 
 -- Proveedores
 CREATE TABLE Proveedores (
@@ -77,6 +88,7 @@ CREATE TABLE Proveedores (
     FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Proveedores_Empresas FOREIGN KEY (Ruc) REFERENCES Empresas(Ruc) ON UPDATE CASCADE
 );
+GO
 
 -- Productos
 CREATE TABLE Productos (
@@ -93,10 +105,11 @@ CREATE TABLE Productos (
     CONSTRAINT FK_Productos_Categoria FOREIGN KEY (CodigoCategoria) REFERENCES Categorias(CodigoCategoria) ON UPDATE CASCADE,
     CONSTRAINT FK_Productos_Proveedor FOREIGN KEY (Ruc) REFERENCES Proveedores(Ruc) ON UPDATE CASCADE
 );
+GO
 
 -----------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------
 -- Esquema de Ventas --
+-----------------------------------------------------------------------------------------------------------
 
 -- Ventas
 CREATE TABLE Ventas (
@@ -110,6 +123,7 @@ CREATE TABLE Ventas (
     CONSTRAINT FK_Ventas_ClientesEmpresa FOREIGN KEY (Ruc) REFERENCES ClientesEmpresa(Ruc),
     CONSTRAINT FK_Ventas_Empleados FOREIGN KEY (CodigoEmpleado) REFERENCES Empleados(CodigoEmpleado)
 );
+GO
 
 -- Detalle de ventas
 CREATE TABLE DetalleVentas (
@@ -120,3 +134,4 @@ CREATE TABLE DetalleVentas (
     CONSTRAINT FK_DetalleVentas_Ventas FOREIGN KEY (CodigoVenta) REFERENCES Ventas(CodigoVenta) ON UPDATE CASCADE,
     CONSTRAINT FK_DetalleVentas_Productos FOREIGN KEY (CodigoProducto) REFERENCES Productos(CodigoProducto)
 );
+GO
