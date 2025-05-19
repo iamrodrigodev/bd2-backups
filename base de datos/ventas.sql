@@ -88,7 +88,7 @@ CREATE TABLE Productos (
 );
 
 -- Esquema de Ventas --
--- Venta
+-- Ventas
 CREATE TABLE Ventas (
     CodigoVenta INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     Dni CHAR(8) NULL,
