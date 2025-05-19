@@ -1,4 +1,4 @@
-CREATE DATABASE Ventas;
+CREATE DATABASE VentasBD2;
 
 -----------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------
@@ -107,8 +107,8 @@ CREATE TABLE Ventas (
     fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT CHK_SoloUnCliente CHECK ((Dni IS NOT NULL AND Ruc IS NULL) OR (Dni IS NULL AND Ruc IS NOT NULL)),
     CONSTRAINT FK_Ventas_ClientesPersona FOREIGN KEY (Dni) REFERENCES Clientes(Dni) ON UPDATE CASCADE,
-    CONSTRAINT FK_Ventas_ClientesEmpresa FOREIGN KEY (Ruc) REFERENCES ClientesEmpresa(Ruc) ON UPDATE CASCADE,
-    CONSTRAINT FK_Ventas_Empleados FOREIGN KEY (CodigoEmpleado) REFERENCES Empleados(CodigoEmpleado) ON UPDATE CASCADE
+    CONSTRAINT FK_Ventas_ClientesEmpresa FOREIGN KEY (Ruc) REFERENCES ClientesEmpresa(Ruc),
+    CONSTRAINT FK_Ventas_Empleados FOREIGN KEY (CodigoEmpleado) REFERENCES Empleados(CodigoEmpleado)
 );
 
 -- Detalle de ventas
@@ -118,5 +118,5 @@ CREATE TABLE DetalleVentas (
     Cantidad INT NOT NULL,
     PRIMARY KEY (CodigoVenta, CodigoProducto),
     CONSTRAINT FK_DetalleVentas_Ventas FOREIGN KEY (CodigoVenta) REFERENCES Ventas(CodigoVenta) ON UPDATE CASCADE,
-    CONSTRAINT FK_DetalleVentas_Productos FOREIGN KEY (CodigoProducto) REFERENCES Productos(CodigoProducto) ON UPDATE CASCADE
+    CONSTRAINT FK_DetalleVentas_Productos FOREIGN KEY (CodigoProducto) REFERENCES Productos(CodigoProducto)
 );
