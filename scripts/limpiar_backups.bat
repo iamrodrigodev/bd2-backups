@@ -4,13 +4,14 @@ setlocal enabledelayedexpansion
 :: Configuración
 set "BACKUP_PATH=C:\BackupsVentasBD2"
 set "DIAS_A_MANTENER=15"
-set "EXTENSION=*.bak"
+set "EXTENSIONES=*.bak *.zip"
 
 echo ========================================
-echo  Limpieza de Backups Antiguos
+echo  LIMPIEZA DE BACKUPS ANTIGUOS
 echo ========================================
 echo.
-echo Ruta de busqueda: %BACKUP_PATH%\%EXTENSION%
+echo Ruta de busqueda: %BACKUP_PATH%
+echo Extensiones: %EXTENSIONES%
 echo Se eliminaran archivos con mas de %DIAS_A_MANTENER% dias de antiguedad
 echo.
 
@@ -20,7 +21,7 @@ if not exist "%BACKUP_PATH%" (
     goto :end
 )
 
-:: Contadores para el resumen
+:: Inicializar contadores
 set /a total_archivos=0
 set /a archivos_eliminados=0
 set /a archivos_mantenidos=0
@@ -28,38 +29,46 @@ set /a archivos_mantenidos=0
 echo Buscando archivos de backup...
 echo ----------------------------------------
 
-:: Usar forfiles para encontrar y eliminar archivos antiguos
-for /f "delims=" %%F in ('forfiles /P "%BACKUP_PATH%" /M %EXTENSION% /D -%DIAS_A_MANTENER% /C "cmd /c echo @path" 2^>nul') do (
-    if exist "%%F" (
-        echo [ELIMINANDO] "%%~nxF" - Creado el %%~tF
-        del /F /Q "%%F"
-        if !ERRORLEVEL! EQU 0 (
-            set /a archivos_eliminados+=1
-            echo [ELIMINADO] "%%~nxF"
-        ) else (
-            echo [ERROR] No se pudo eliminar "%%~nxF"
+:: Procesar cada extensión
+for %%E in (%EXTENSIONES%) do (
+    echo.
+    echo Procesando archivos: %%E
+    echo ----------------------------------------
+    
+    for /f "delims=" %%F in ('forfiles /P "%BACKUP_PATH%" /M "%%E" /D -%DIAS_A_MANTENER% /C "cmd /c echo @path" 2^>nul') do (
+        if exist "%%F" (
+            echo [ELIMINANDO] "%%~nxF" - Creado el %%~tF
+            del /F /Q "%%F"
+            if !ERRORLEVEL! EQU 0 (
+                set /a archivos_eliminados+=1
+                echo [ELIMINADO] "%%~nxF"
+            ) else (
+                echo [ERROR] No se pudo eliminar "%%~nxF"
+            )
+            set /a total_archivos+=1
+            echo ----------------------------------------
         )
-        echo ----------------------------------------
     )
 )
 
 :: Contar archivos restantes
-for /f "delims=" %%F in ('dir /a-d /b "%BACKUP_PATH%\%EXTENSION%" 2^>nul') do (
-    set /a total_archivos+=1
+for /f "tokens=*" %%E in ('echo %EXTENSIONES%') do (
+    for /f "delims=" %%F in ('dir /a-d /b "%BACKUP_PATH%\%%E" 2^>nul') do (
+        set /a archivos_mantenidos+=1
+    )
 )
 
-set /a archivos_mantenidos=!total_archivos! - !archivos_eliminados!
-
-:: Mostrar resumen
+:mostrar_resumen
 echo.
 echo ============ RESUMEN =================
-echo Total de archivos encontrados: !total_archivos!
-echo Archivos eliminados: !archivos_eliminados!
-echo Archivos mantenidos: !archivos_mantenidos!
+echo Total de archivos encontrados: %total_archivos%
+echo Archivos eliminados: %archivos_eliminados%
+echo Archivos mantenidos: %archivos_mantenidos%
 echo ========================================
 echo.
-echo Limpieza completada.
-echo Presione una tecla para continuar...
-pause > nul
+echo Proceso de limpieza finalizado.
+echo.
 
 :end
+echo Presione una tecla para continuar...
+pause > nul
