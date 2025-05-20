@@ -3,17 +3,16 @@ setlocal enabledelayedexpansion
 
 :: Configuracion
 set "BACKUP_PATH=C:\BackupsVentasBD2"
-set "DIAS_A_COMPRIMIR=3"
-set "EXTENSION=*.bak"
 set "ZIP_PATH=C:\Program Files\7-Zip\7z.exe"
 set "ZIP_OPTIONS=a -tzip -mx=9 -mmt=on"
+set "DIAS_ANTIGUEDAD=3"
 
 echo ========================================
-echo  COMPRESION DE BACKUPS ANTIGUOS
+echo  COMPRESION DE BACKUPS
 echo ========================================
 echo.
-echo Ruta de busqueda: %BACKUP_PATH%\%EXTENSION%
-echo Se comprimiran archivos con mas de %DIAS_A_COMPRIMIR% dias de antiguedad
+echo Ruta de busqueda: %BACKUP_PATH%\*.bak
+echo Se comprimiran archivos con mas de %DIAS_ANTIGUEDAD% dias de antiguedad
 echo.
 
 :: Verificar si el directorio existe
@@ -34,37 +33,37 @@ if not exist "%ZIP_PATH%" (
 :: Contadores para el resumen
 set /a total_archivos=0
 set /a archivos_comprimidos=0
-set /a archivos_mantenidos=0
+set /a archivos_recientes=0
 
-echo Buscando archivos de backup para comprimir...
+echo Listando archivos .bak...
 echo ----------------------------------------
 
-:: Usar forfiles para encontrar archivos antiguos
-for /f "delims=" %%F in ('forfiles /P "%BACKUP_PATH%" /M %EXTENSION% /D -%DIAS_A_COMPRIMIR% /C "cmd /c echo @path" 2^>nul') do (
+:: Primero mostramos todos los archivos .bak
+for %%F in ("%BACKUP_PATH%\*.bak") do (
     if exist "%%F" (
-        set "archivo=%%~nF"
-        set "archivo_sin_ext=!archivo:~0,-4!"
-        
-        :: Verificar si el archivo ya esta comprimido
-        if not exist "%%~dpF!archivo_sin_ext!.zip" (
-            echo [COMPRIMIENDO] "%%~nxF" - Creado el %%~tF
-            
-            :: Comprimir el archivo con 7-Zip
-            "%ZIP_PATH%" %ZIP_OPTIONS% "%%~dpF!archivo_sin_ext!.zip" "%%F"
-            
-            if !ERRORLEVEL! EQU 0 (
-                :: Eliminar el archivo original si la compresion fue exitosa
-                del /F /Q "%%F"
-                set /a archivos_comprimidos+=1
-                echo [COMPRIMIDO] "%%~nxF" -> "!archivo_sin_ext!.zip"
-            ) else (
-                echo [ERROR] No se pudo comprimir "%%~nxF"
-            )
-        ) else (
-            echo [OMITIDO] "%%~nxF" ya tiene un archivo .zip correspondiente
-            set /a archivos_mantenidos+=1
-        )
         set /a total_archivos+=1
+        echo [ARCHIVO %total_archivos%] %%~nxF - Creado el %%~tF
+    )
+)
+
+echo.
+echo Comprimiendo archivos con mas de %DIAS_ANTIGUEDAD% dias...
+echo ----------------------------------------
+
+:: Luego comprimimos solo los que tengan mas de X dias
+for /f "delims=" %%F in ('forfiles /P "%BACKUP_PATH%" /M *.bak /D -%DIAS_ANTIGUEDAD% /C "cmd /c echo @path" 2^>nul') do (
+    if exist "%%F" (
+        echo [COMPRIMIENDO] %%~nxF - Creado el %%~tF
+        
+        "%ZIP_PATH%" %ZIP_OPTIONS% "%%~dpnF.zip" "%%F"
+        
+        if !ERRORLEVEL! EQU 0 (
+            del /F /Q "%%F"
+            set /a archivos_comprimidos+=1
+            echo [COMPRIMIDO] %%~nxF
+        ) else (
+            echo [ERROR] No se pudo comprimir %%~nxF
+        )
         echo ----------------------------------------
     )
 )
@@ -72,14 +71,13 @@ for /f "delims=" %%F in ('forfiles /P "%BACKUP_PATH%" /M %EXTENSION% /D -%DIAS_A
 :mostrar_resumen
 echo.
 echo ============ RESUMEN =================
-echo Total de archivos encontrados: %total_archivos%
-echo Archivos comprimidos: %archivos_comprimidos%
+echo Total de archivos .bak encontrados: !total_archivos!
+echo Archivos comprimidos: !archivos_comprimidos!
 echo ========================================
 echo.
-echo Proceso de compresion finalizado.
+echo Proceso finalizado.
 echo.
 
 :end
-echo.
 echo Presione una tecla para continuar...
 pause > nul
