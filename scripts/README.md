@@ -40,7 +40,7 @@ Todas las capturas de pantalla para configurar la tarea programada en Windows:
 Editar las variables al inicio del archivo:
 ```batch
 set "BACKUP_PATH=C:\BackupsVentasBD2"
-set "DIAS_ANTIGUEDAD=15"
+set "DIAS_ANTIGUEDAD=3"
 ```
 
 📝 **Uso**:
