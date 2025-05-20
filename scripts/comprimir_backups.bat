@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 :: Configuración
 set "BACKUP_PATH=C:\BackupsVentasBD2"
-set "DIAS_ANTIGUEDAD=15"
+set "DIAS_ANTIGUEDAD=3"
 
 echo ========================================
 echo  COMPRESION DE BACKUPS (.ZIP Nativo Windows)
