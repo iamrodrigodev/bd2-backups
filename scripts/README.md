@@ -86,31 +86,4 @@ Todas las capturas para configurar la limpieza semanal:
 | 🗜️ Compresión | Diario | 00:00:00 |
 | 🗑️ Limpieza | Semanal (Sábados) | 00:00:00 |
 
-### Configuración recomendada en el Programador de Tareas de Windows:
-
-1. **Tarea de Backup**
-   - Activar: `Ejecutar con los privilegios más altos`
-   - Configuración para Windows 10/11
-   - Repetir cada: `1 semana` en los días seleccionados
-
-2. **Tarea de Compresión**
-   - Activar: `Ejecutar sin importar si el usuario ha iniciado sesión o no`
-   - No detener la tarea si se ejecuta más de: `1 hora`
-   - Repetir cada: `1 día`
-
-3. **Tarea de Limpieza**
-   - Comenzar en: `Ruta completa a limpiar_backups.bat`
-   - Agregar argumento: `/force` para ejecución desatendida
-   - Repetir cada: `1 semana` los sábados
-
-## 📝 Notas Importantes
-
-1. Verificar que el servicio de SQL Server esté en ejecución
-2. Asegurar permisos de escritura en las rutas de destino
-3. Revisar regularmente los logs en `C:\BackupsVentasBD2\Logs\`
-
-## 🔒 Seguridad
-
-- Los scripts verifican permisos antes de ejecutar operaciones críticas
-- Se recomienda ejecutar con una cuenta con privilegios adecuados
-- Los logs contienen información sensible, proteger el acceso a los mismos
+---
