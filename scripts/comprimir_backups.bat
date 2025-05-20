@@ -74,7 +74,6 @@ echo.
 echo ============ RESUMEN =================
 echo Total de archivos encontrados: %total_archivos%
 echo Archivos comprimidos: %archivos_comprimidos%
-echo Archivos ya comprimidos: %archivos_mantenidos%
 echo ========================================
 echo.
 echo Proceso de compresion finalizado.
