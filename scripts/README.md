@@ -32,7 +32,6 @@ Todas las capturas de pantalla para configurar la tarea programada en Windows:
 📂 **Ubicación**: `scripts/comprimir_backups.bat`
 
 ✅ **Características Principales**:
-- Compresión con 7-Zip (se requiere instalación previa)
 - Filtrado por antigüedad (3+ días)
 - Mantenimiento de archivos originales
 - Reporte de ahorro de espacio
