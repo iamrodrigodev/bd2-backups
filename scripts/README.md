@@ -32,10 +32,15 @@ Todas las capturas de pantalla para configurar la tarea programada en Windows:
 📂 **Ubicación**: `scripts/comprimir_backups.bat`
 
 ✅ **Características Principales**:
-- Compresión con 7-Zip
+- Compresión con 7-Zip (se requiere instalación previa)
 - Filtrado por antigüedad (3+ días)
 - Mantenimiento de archivos originales
 - Reporte de ahorro de espacio
+
+📥 **Requisito Previo**: 7-Zip
+Si no lo tienes instalado, descárgalo e instálalo desde:
+- [Descargar 7-Zip](https://www.7-zip.org/download.html)
+- Por defecto, el script busca 7-Zip en `C:\Program Files\7-Zip\7z.exe`
 
 ⚙️ **Configuración**:
 Editar las variables al inicio del archivo:
