@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 set "BACKUP_PATH=C:\BackupsVentasBD2"
 set "DIAS_A_COMPRIMIR=3"
 set "EXTENSION=*.bak"
-set "ZIP_PATH=\"C:\Program Files\7-Zip\7z.exe\""
+set "ZIP_PATH=C:\Program Files\7-Zip\7z.exe"
 set "ZIP_OPTIONS=a -tzip -mx=9 -mmt=on"
 
 echo ========================================
@@ -23,11 +23,12 @@ if not exist "%BACKUP_PATH%" (
 )
 
 :: Verificar si 7-Zip esta instalado
-if not exist %ZIP_PATH% (
+if not exist "%ZIP_PATH%" (
     echo [ERROR] No se encontro 7-Zip en la ruta: %ZIP_PATH%
     echo Por favor, instale 7-Zip o actualice la ruta en el script.
     echo Puede descargarlo desde: https://www.7-zip.org/
-    goto :end
+    pause
+    exit /b 1
 )
 
 :: Contadores para el resumen
@@ -49,7 +50,7 @@ for /f "delims=" %%F in ('forfiles /P "%BACKUP_PATH%" /M %EXTENSION% /D -%DIAS_A
             echo [COMPRIMIENDO] "%%~nxF" - Creado el %%~tF
             
             :: Comprimir el archivo con 7-Zip
-            %ZIP_PATH% %ZIP_OPTIONS% "%%~dpF!archivo_sin_ext!.zip" "%%F"
+            "%ZIP_PATH%" %ZIP_OPTIONS% "%%~dpF!archivo_sin_ext!.zip" "%%F"
             
             if !ERRORLEVEL! EQU 0 (
                 :: Eliminar el archivo original si la compresion fue exitosa
@@ -80,5 +81,6 @@ echo Proceso de compresion finalizado.
 echo.
 
 :end
+echo.
 echo Presione una tecla para continuar...
 pause > nul
