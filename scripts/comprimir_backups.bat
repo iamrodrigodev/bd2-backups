@@ -1,18 +1,16 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Configuracion
+:: Configuración
 set "BACKUP_PATH=C:\BackupsVentasBD2"
-set "ZIP_PATH=C:\Program Files\7-Zip\7z.exe"
-set "ZIP_OPTIONS=a -tzip -mx=9 -mmt=on"
-set "DIAS_ANTIGUEDAD=3"
+set "DIAS_ANTIGUEDAD=15"
 
 echo ========================================
-echo  COMPRESION DE BACKUPS
+echo  COMPRESION DE BACKUPS (.ZIP Nativo Windows)
 echo ========================================
 echo.
-echo Ruta de busqueda: %BACKUP_PATH%\*.bak
-echo Se comprimiran archivos con mas de %DIAS_ANTIGUEDAD% dias de antiguedad
+echo Ruta de búsqueda: %BACKUP_PATH%\*.bak
+echo Se comprimiran archivos con más de %DIAS_ANTIGUEDAD% días de antigüedad
 echo.
 
 :: Verificar si el directorio existe
@@ -21,44 +19,35 @@ if not exist "%BACKUP_PATH%" (
     goto :end
 )
 
-:: Verificar si 7-Zip esta instalado
-if not exist "%ZIP_PATH%" (
-    echo [ERROR] No se encontro 7-Zip en la ruta: %ZIP_PATH%
-    echo Por favor, instale 7-Zip o actualice la ruta en el script.
-    echo Puede descargarlo desde: https://www.7-zip.org/
-    pause
-    exit /b 1
-)
-
-:: Contadores para el resumen
+:: Contadores
 set /a total_archivos=0
 set /a archivos_comprimidos=0
-set /a archivos_recientes=0
 
 echo Listando archivos .bak...
 echo ----------------------------------------
 
-:: Primero mostramos todos los archivos .bak
 for %%F in ("%BACKUP_PATH%\*.bak") do (
     if exist "%%F" (
         set /a total_archivos+=1
-        echo [ARCHIVO %total_archivos%] %%~nxF - Creado el %%~tF
+        echo [ARCHIVO !total_archivos!] %%~nxF - Creado el %%~tF
     )
 )
 
 echo.
-echo Comprimiendo archivos con mas de %DIAS_ANTIGUEDAD% dias...
+echo Comprimiendo archivos con más de %DIAS_ANTIGUEDAD% días...
 echo ----------------------------------------
 
-:: Luego comprimimos solo los que tengan mas de X dias
 for /f "delims=" %%F in ('forfiles /P "%BACKUP_PATH%" /M *.bak /D -%DIAS_ANTIGUEDAD% /C "cmd /c echo @path" 2^>nul') do (
     if exist "%%F" (
-        echo [COMPRIMIENDO] %%~nxF - Creado el %%~tF
+        set "ARCHIVO=%%~F"
+        set "ZIPDEST=%%~dpnF.zip"
+
+        echo [COMPRIMIENDO] %%~nxF - Destino: !ZIPDEST!
         
-        "%ZIP_PATH%" %ZIP_OPTIONS% "%%~dpnF.zip" "%%F"
-        
-        if !ERRORLEVEL! EQU 0 (
-            del /F /Q "%%F"
+        powershell -Command "Compress-Archive -Path '!ARCHIVO!' -DestinationPath '!ZIPDEST!' -Force"
+
+        if exist "!ZIPDEST!" (
+            del /F /Q "!ARCHIVO!"
             set /a archivos_comprimidos+=1
             echo [COMPRIMIDO] %%~nxF
         ) else (
